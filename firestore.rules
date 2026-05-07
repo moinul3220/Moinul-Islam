@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} { allow read, write: if false; }
+
+    // Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isAdmin() { 
+      return isVerified() && (
+        request.auth.token.email == 'moinulofficial24@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      ); 
+    }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Messages
+    match /messages/{messageId} {
+      allow create: if isValidId(messageId) && isValidMessage(incoming());
+      allow list, get, update, delete: if isAdmin();
+    }
+
+    function isValidMessage(d) {
+      return d.keys().hasAll(['name', 'email', 'message', 'createdAt']) &&
+             d.keys().size() <= 8 &&
+             d.name is string && d.name.size() > 0 && d.name.size() < 100 &&
+             d.email is string && d.email.size() > 0 && d.email.size() < 100 &&
+             d.message is string && d.message.size() > 0 && d.message.size() < 5000 &&
+             d.createdAt == request.time;
+    }
+
+    // Skills
+    match /skills/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidSkill(incoming());
+      allow delete: if isAdmin();
+    }
+
+    function isValidSkill(d) {
+      return d.keys().hasAll(['name', 'category', 'level']) &&
+             d.name is string && d.name.size() < 100 &&
+             d.category is string && d.level is number;
+    }
+
+    // Portfolio
+    match /portfolio/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidPortfolio(incoming());
+      allow delete: if isAdmin();
+    }
+
+    function isValidPortfolio(d) {
+      return d.keys().hasAll(['title', 'category', 'imageUrl', 'description']) &&
+             d.title is string && d.imageUrl is string && d.category is string;
+    }
+
+    // Education
+    match /education/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidEducation(incoming());
+      allow delete: if isAdmin();
+    }
+
+    function isValidEducation(d) {
+      return d.keys().hasAll(['institution', 'degree', 'duration']) &&
+             d.institution is string && d.degree is string;
+    }
+  }
+}

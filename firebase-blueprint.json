@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "Skill": {
+      "title": "Skill",
+      "description": "A technical skill or tool proficiency",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string", "enum": ["Video Editing", "Graphic Design", "Tools", "Soft Skills"] },
+        "level": { "type": "number", "description": "0-100 proficiency level" }
+      },
+      "required": ["name", "category", "level"]
+    },
+    "Education": {
+      "title": "Education",
+      "description": "An academic qualification",
+      "type": "object",
+      "properties": {
+        "institution": { "type": "string" },
+        "degree": { "type": "string" },
+        "duration": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["institution", "degree", "duration"]
+    },
+    "PortfolioItem": {
+      "title": "Portfolio Item",
+      "description": "A piece of work or practice project",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string", "enum": ["Video", "Design", "Practice"] },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "link": { "type": "string" }
+      },
+      "required": ["title", "category", "imageUrl", "description"]
+    },
+    "Message": {
+      "title": "Contact Message",
+      "description": "A message submitted via the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "service": { "type": "string" },
+        "budget": { "type": "string" },
+        "deadline": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    }
+  },
+  "firestore": {
+    "skills": {
+      "schema": "Skill",
+      "description": "Technical skills list"
+    },
+    "education": {
+      "schema": "Education",
+      "description": "Academic background"
+    },
+    "portfolio": {
+      "schema": "PortfolioItem",
+      "description": "Showcase of work"
+    },
+    "messages": {
+      "schema": "Message",
+      "description": "Contact form submissions"
+    },
+    "admins": {
+      "schema": { "type": "object", "properties": { "role": { "type": "string" } } },
+      "description": "Admin access control list"
+    }
+  }
+}
